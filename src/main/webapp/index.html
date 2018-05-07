@@ -1,0 +1,81 @@
+<html>
+<head>
+    <title>Upload Files</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+</head>
+    <body>
+        <div class="container">
+            <div class="row justify-content-md-center">
+                <h1>Upload Files</h1>
+            </div>    
+            <div class="row justify-content-md-center">
+                <div class="col col-md-auto" style="margin-top: 10px">
+                    <input id="files" type="file" multiple />
+                    <button type="button" class="btn btn-danger btn-sm" onclick="upload()">Upload</button>
+                </div>    
+            </div>    
+            <div class="row justify-content-md-center" style="margin-top: 10px">
+                <div class="col col-md-auto">
+                    <br />
+                    <br />
+                    <h4 id="text">Selecione Arquivos e Clique em Upload</h2>
+                </div>    
+            </div>    
+        </div>   
+        <script language="javascript" type="text/javascript">
+
+            var filesToPost=[];
+            var now = new Date();
+
+            function getPromise(fileName, fileData) {
+                return new Promise(function (resolve) {
+                    var reader = new FileReader();
+                    reader.readAsArrayBuffer(fileData);
+                    reader.onload = function() {
+                        var arrayBuffer = reader.result
+                        var data = new Uint8Array(arrayBuffer);
+
+                        var stringData = "";
+                    
+                        for (var j = 0; j < data.length; j++) {
+                            stringData += String.fromCharCode(data[j]);
+                        }
+
+                        resolve({'name': fileName, 'content': btoa(stringData)});
+                    }
+                });
+            }
+
+            function upload() {
+
+                if(document.getElementById("files").files.length == 0) return;
+
+                now = new Date();
+
+                for(var i=0; i < document.getElementById("files").files.length; i++) {
+                    var fileName = document.getElementById("files").files[i].name;
+                    var fileData = new Blob([document.getElementById("files").files[i]]);
+                    getPromise(fileName, fileData).then(function(data) {
+                    
+                        filesToPost.push(data);
+                        if(filesToPost.length == document.getElementById("files").files.length) {
+                            var xhr = new XMLHttpRequest();
+                            xhr.open("POST", "api/files/upload", true);
+                            xhr.setRequestHeader("Content-type", "application/json");
+                            xhr.send(JSON.stringify(filesToPost));
+                            xhr.onreadystatechange = function () {
+
+                                if(xhr.readyState === 4 && xhr.status === 200) {
+
+                                    document.getElementById("text").innerHTML = "<br />" + "Miliseconds: " + (new Date().getTime() - now.getTime());
+                                }
+                            }
+                            
+                            filesToPost=[];
+                        } 
+                    });  
+                }                             
+            }
+        </script> 
+    </body>
+</html>
