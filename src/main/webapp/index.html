@@ -4,23 +4,26 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
 </head>
     <body>
-        <div class="container">
-            <div class="row justify-content-md-center">
-                <h1>Upload Files</h1>
-            </div>    
-            <div class="row justify-content-md-center">
-                <div class="col col-md-auto" style="margin-top: 10px">
+        <div class="h-100 container">
+            <div class="h-100 row justify-content-md-center align-items-center">
+                <div class="col col-md-auto">
+                    <h1>Upload Files</h1>
                     <input id="files" type="file" multiple />
                     <button type="button" class="btn btn-danger btn-sm" onclick="upload()">Upload</button>
-                </div>    
-            </div>    
-            <div class="row justify-content-md-center" style="margin-top: 10px">
-                <div class="col col-md-auto">
-                    <br />
-                    <br />
-                    <h4 id="text">Selecione Arquivos e Clique em Upload</h2>
-                </div>    
-            </div>    
+                    <table class="table" style="margin-top: 10px">
+                        <thead>
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Bytes</th>
+                        </tr>
+                        </thead>
+                        <tbody id="table_files">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>   
         <script language="javascript" type="text/javascript">
 
@@ -60,22 +63,74 @@
                         filesToPost.push(data);
                         if(filesToPost.length == document.getElementById("files").files.length) {
                             var xhr = new XMLHttpRequest();
-                            xhr.open("POST", "api/files/upload", true);
-                            xhr.setRequestHeader("Content-type", "application/json");
-                            xhr.send(JSON.stringify(filesToPost));
                             xhr.onreadystatechange = function () {
-
                                 if(xhr.readyState === 4 && xhr.status === 200) {
-
-                                    document.getElementById("text").innerHTML = "<br />" + "Miliseconds: " + (new Date().getTime() - now.getTime());
+                                    alert("Sucesso");
+                                }
+                                var input = document.getElementById("files");
+                                 while (input.firstChild) {
+                                    input.removeChild(input.firstChild);
                                 }
                             }
+                            xhr.open("PUT", "api/files/upload", true);
+                            xhr.setRequestHeader("Content-type", "application/json");
+                            xhr.send(JSON.stringify(filesToPost));
                             
                             filesToPost=[];
                         } 
                     });  
                 }                             
             }
+
+            function load() {
+                var tbody = document.getElementById("table_files");
+                while (tbody.firstChild) {
+                    tbody.removeChild(tbody.firstChild);
+                }
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    if(xhr.readyState === 4 && xhr.status === 200) {
+                        JSON.parse(xhr.response).forEach(function(item){
+                            var tr = document.createElement("tr");
+
+                            var td0 = document.createElement("td");
+                            tr.appendChild(td0);
+                            td0.innerText = "x";
+                            td0.style = "cursor: pointer;"
+                            td0.onclick = function() {
+                                var xhr = new XMLHttpRequest();
+                                xhr.onreadystatechange = function () {
+                                    if(xhr.readyState === 4 && xhr.status === 200) {
+                                        load();
+                                    }
+                                }
+                                xhr.open("DELETE", "api/files/delete/" + item.id, true);
+                                xhr.send();
+                            }
+
+                            var td1 = document.createElement("td");
+                            tr.appendChild(td1);
+                            td1.innerText = item.id;
+
+                            var td2 = document.createElement("td");
+                            tr.appendChild(td2);
+                            td2.innerText = item.name;
+
+                            var td3 = document.createElement("td");
+                            tr.appendChild(td3);
+                            td3.innerText = item.content.substring(0, 15);
+
+                            tbody.appendChild(tr);
+                        });
+                    }
+                }
+                xhr.open("GET", "api/files/readAll", true);
+                xhr.setRequestHeader("Content-type", "application/json");
+                xhr.send();
+            }
+
+            load();
+            setInterval(load, 30000);
         </script> 
     </body>
 </html>

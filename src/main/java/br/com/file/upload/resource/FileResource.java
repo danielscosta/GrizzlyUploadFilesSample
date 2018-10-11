@@ -1,9 +1,6 @@
 package br.com.file.upload.resource;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -21,8 +18,16 @@ public class FileResource {
 
 		return "I'm alive";
 	}
+
+    @GET
+    @Path("readAll")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response readAll() {
+
+        return Response.ok(FileFacade.readAll()).build();
+    }
 	
-	@POST
+	@PUT
 	@Path("upload")
 	public Response upload(File files[]) {
 
@@ -30,5 +35,16 @@ public class FileResource {
 
 		return Response.ok().build();
 	}
+
+    @DELETE
+    @Path("delete/{id}")
+    public Response delete(@PathParam("id") int id) {
+
+        FileFacade.delete(id);
+
+        return Response.ok().build();
+    }
+
+
 
 }

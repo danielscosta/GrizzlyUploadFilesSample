@@ -27,4 +27,6 @@ dependencies {
     	    'org.glassfish.jersey:jersey-bom:2.27',
     	    'org.glassfish.jersey.media:jersey-media-json-jackson:2.27',
     	    'org.glassfish.jersey.inject:jersey-hk2:2.27'
+
+    compile group: 'org.hsqldb', name: 'hsqldb', version: '2.4.1'
 }

@@ -1,5 +1,6 @@
 import java.net.URI;
 
+import br.com.file.upload.db.local.FileDb;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -10,6 +11,8 @@ import br.com.file.upload.resource.FileResource;
 public class Main {
 
 	public static void main(String[] args) {
+
+        FileDb.getInstance();
 	    
 	    final ResourceConfig rc = new ResourceConfig();
 	    rc.register(FileResource.class);
